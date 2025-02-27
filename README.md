@@ -144,7 +144,7 @@ To use the Local Bridge connection:
 
 ## Compatibility
 
-This node has been tested with n8n version 0.209.4 and later.
+This node has been tested with n8n version 1.80.4.
 
 ## Usage
 
