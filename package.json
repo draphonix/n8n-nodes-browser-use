@@ -10,14 +10,14 @@
     "ai-automation"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/n8n-nodes-browser-use",
+  "homepage": "https://github.com/draphonix/n8n-nodes-browser-use.git",
   "author": {
-    "name": "Your Name",
-    "email": "your-email@example.com"
+    "name": "Hoang Nguyen Bang",
+    "email": "hoangmrb@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/n8n-nodes-browser-use.git"
+    "url": "https://github.com/draphonix/n8n-nodes-browser-use.git"
   },
   "engines": {
     "node": ">=18.10",
