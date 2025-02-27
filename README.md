@@ -2,18 +2,22 @@
 
 # n8n-nodes-browser-use
 
-This is an n8n community node that integrates with [Browser Use](https://browser-use.com), an AI-powered browser automation tool. This node allows you to create and manage browser automation tasks using natural language instructions.
+This is an n8n community node. It lets you use [Browser Use](https://browser-use.com) in your n8n workflows.
 
-## Features
+Browser Use is an AI-powered browser automation tool that allows you to create and manage browser automation tasks using natural language instructions.
 
-- **Cloud API Integration**: Connect to the Browser Use Cloud API for the simplest setup.
-- **Local Bridge Option**: Connect to a locally running Browser Use instance (requires additional setup).
-- **Multiple AI Providers**: Choose between different AI models for browser automation.
-- **Full Task Management**: Create, monitor, stop, and retrieve media from browser automation tasks.
+[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
+
+[Installation](#installation)  
+[Operations](#operations)  
+[Credentials](#credentials)  
+[Compatibility](#compatibility)  
+[Usage](#usage)  
+[Resources](#resources)  
 
 ## Installation
 
-Follow these steps to install this node:
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
 ### In n8n Desktop or Cloud:
 
@@ -36,38 +40,6 @@ npm install n8n-nodes-browser-use
 4. Link to your n8n installation: `npm link`
 5. In your n8n installation directory: `npm link n8n-nodes-browser-use`
 
-## Usage
-
-### Cloud API Connection
-
-1. Create credentials for the Browser Use Cloud API:
-   - Get your API key from [Browser Use Cloud](https://cloud.browser-use.com/billing)
-   - Create a new credential of type "Browser Use Cloud API"
-   - Enter your API key
-
-2. Add the Browser Use node to your workflow
-3. Select "Cloud API" as the connection type
-4. Choose your operation (Run Task, Get Task Status, etc.)
-5. Configure the operation parameters (instructions, task ID, etc.)
-
-### Local Bridge Connection
-
-Before using the Local Bridge connection, you need to set up the Python bridge service:
-
-1. Clone the repository for the bridge service (coming soon)
-2. Install the required dependencies
-3. Run the bridge service
-
-Then, in n8n:
-
-1. Create credentials for the Browser Use Local Bridge:
-   - Enter the URL of your local bridge service (e.g., `http://localhost:8000`)
-   - If authentication is enabled, enter your authentication token
-
-2. Add the Browser Use node to your workflow
-3. Select "Local Bridge" as the connection type
-4. Follow the same steps as for the Cloud API connection
-
 ## Operations
 
 ### Run Task
@@ -76,9 +48,18 @@ Execute a new browser automation task with natural language instructions.
 
 **Parameters:**
 - **Instructions**: Natural language description of what you want the browser to do.
-- **AI Provider**: Select the AI model to use for automation (OpenAI, Anthropic, or Default).
+- **Save Browser Data**: Whether to save browser cookies and other data (safely encrypted).
 
 **Returns:** Task ID, status, and a live preview URL.
+
+### Get Task
+
+Retrieve full details of a specific task.
+
+**Parameters:**
+- **Task ID**: The ID of the task to retrieve.
+
+**Returns:** Complete task information including status, instructions, and timestamps.
 
 ### Get Task Status
 
@@ -88,6 +69,24 @@ Check the status of a running task.
 - **Task ID**: The ID of the task to check.
 
 **Returns:** Current status, completion percentage, and any error messages.
+
+### Pause Task
+
+Temporarily pause a running task.
+
+**Parameters:**
+- **Task ID**: The ID of the task to pause.
+
+**Returns:** Confirmation of task being paused.
+
+### Resume Task
+
+Resume a previously paused task.
+
+**Parameters:**
+- **Task ID**: The ID of the task to resume.
+
+**Returns:** Confirmation of task resumption.
 
 ### Stop Task
 
@@ -108,60 +107,78 @@ Retrieve media (screenshots, video, PDF) from a task.
 
 **Returns:** URL or binary data of the requested media.
 
-## Credential Validation
+### List Tasks
 
-The node implements automatic validation for credentials:
+Retrieve a list of tasks with optional filtering.
 
-### Cloud API Credentials
-- The node validates your API key by sending a ping request to the Browser Use Cloud API
-- If the API key is invalid or the service is unavailable, you'll receive a clear error message
+**Parameters:**
+- **Limit**: Maximum number of tasks to return (1-100, default 20).
+- **Status Filter**: Filter tasks by their status (optional).
 
-### Local Bridge Credentials
-- The node verifies the connection to your local bridge service with a ping request
-- It validates both the URL and authentication token (if provided)
-- Errors during validation provide specific information about what went wrong
+**Returns:** Array of task records matching the criteria.
 
-This validation happens automatically when:
-1. You save your credentials in the n8n credentials manager
-2. You run a workflow using the Browser Use node
+## Credentials
 
-## Example Workflows
+### Browser Use Cloud API
 
-### Web Scraping
+To use the Browser Use Cloud API, you need to obtain an API key:
 
-1. Trigger (Manual, Schedule, etc.)
-2. Browser Use node:
-   - Operation: Run Task
-   - Instructions: "Go to example.com, click on the 'Products' link, and extract all product names and prices"
+1. Sign up for Browser Use at [Browser Use Cloud](https://cloud.browser-use.com)
+2. Navigate to the billing section to find your API key
+3. Create a new credential of type "Browser Use Cloud API" in n8n
+4. Enter your API key in the credential configuration
 
-3. Wait node (optional)
-4. Browser Use node:
-   - Operation: Get Task Status
-   - Task ID: Output from Step 2
+The node automatically validates your API key by sending a ping request to the Browser Use Cloud API. If the API key is invalid or the service is unavailable, you'll receive a clear error message.
 
-5. If node: Check if task is complete
-6. Process the scraped data
+### Browser Use Local Bridge API (🚧 Work In Progress)
 
-### Form Automation
+⚠️ **Note: The Local Bridge feature is currently under development and may not be fully functional.**
 
-1. Trigger (HTTP, Webhook, etc.)
-2. Browser Use node:
-   - Operation: Run Task
-   - Instructions: "Go to example.com/contact, fill out the form with Name: {{$json.name}}, Email: {{$json.email}}, Message: {{$json.message}}, and submit the form"
+To use the Local Bridge connection:
 
-3. Wait node
-4. Browser Use node:
-   - Operation: Get Task Media
-   - Task ID: Output from Step 2
-   - Media Type: Screenshot
+1. Set up the Browser Use bridge service (documentation coming soon)
+2. Create a new credential of type "Browser Use Local Bridge API" in n8n
+3. Configure with:
+   - URL of your local bridge service (e.g., `http://localhost:8000`)
+   - Authentication token (if enabled)
 
-5. Send Email node with the screenshot attached
+## Compatibility
+
+This node has been tested with n8n version 0.209.4 and later.
+
+## Usage
+
+### Cloud API Connection
+
+1. Add the Browser Use node to your workflow
+2. Select "Cloud API" as the connection type
+3. Choose your credentials or create new ones
+4. Select an operation (Run Task, Get Task Status, etc.)
+5. Configure the operation parameters
+6. Run your workflow
+
+### Local Bridge Connection (🚧 Work In Progress)
+
+The Local Bridge option allows you to connect to a locally running Browser Use instance, which can be useful for development, testing, or when you need to keep your automation entirely on-premise.
+
+⚠️ **Setup Requirements (Coming Soon):**
+
+1. Clone the repository for the bridge service (under development)
+2. Install the required dependencies
+3. Run the bridge service
+
+Then in n8n:
+
+1. Add the Browser Use node to your workflow
+2. Select "Local Bridge" as the connection type
+3. Choose your credentials or create new ones
+4. Configure as you would with the Cloud API connection
 
 ## Resources
 
-- [Browser Use Documentation](https://docs.browser-use.com)
-- [Browser Use Cloud API Documentation](https://docs.browser-use.com/cloud/quickstart)
-- [n8n Documentation](https://docs.n8n.io)
+* [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
+* [Browser Use Documentation](https://docs.browser-use.com)
+* [Browser Use Cloud API Documentation](https://docs.browser-use.com/cloud/quickstart)
 
 ## License
 
