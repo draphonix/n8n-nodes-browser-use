@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-browser-use",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n node to control browser-use AI-powered browser automation",
   "keywords": [
     "n8n-community-node-package",
@@ -41,7 +41,7 @@
     "n8nNodesApiVersion": 1,
     "credentials": [
       "dist/credentials/BrowserUseCloudApi.credentials.js",
-      "dist/credentials/BrowserUseLocalBridge.credentials.js"
+      "dist/credentials/BrowserUseLocalBridgeApi.credentials.js"
     ],
     "nodes": [
       "dist/nodes/BrowserUse/BrowserUse.node.js"

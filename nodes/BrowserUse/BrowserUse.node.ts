@@ -1,5 +1,5 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
-import { INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { INodeExecutionData, INodeType, INodeTypeDescription, NodeApiError, NodeOperationError } from 'n8n-workflow';
 
 export class BrowserUse implements INodeType {
 	description: INodeTypeDescription = {
@@ -179,103 +179,148 @@ export class BrowserUse implements INodeType {
 		let credentials;
 		let baseUrl;
 		
-		if (connectionType === 'cloud') {
-			credentials = await this.getCredentials('browserUseCloudApi');
-			baseUrl = 'https://api.browser-use.com/api/v1';
-		} else {
-			credentials = await this.getCredentials('browserUseLocalBridgeApi');
-			baseUrl = credentials.url as string;
-			if (!baseUrl.endsWith('/api/v1')) {
-				baseUrl = `${baseUrl}/api/v1`.replace(/\/+/g, '/');
-			}
-		}
-
-		for (let i = 0; i < items.length; i++) {
-			try {
-				if (operation === 'runTask') {
-					const instructions = this.getNodeParameter('instructions', i) as string;
-					const aiProvider = this.getNodeParameter('aiProvider', i) as string;
-
-					// Make API call to Browser Use (Cloud or Local)
-					const response = await this.helpers.request({
-						method: 'POST',
-						url: `${baseUrl}/run-task`,
-						headers: {
-							'Authorization': connectionType === 'cloud' 
-								? `Bearer ${credentials.apiKey}` 
-								: credentials.token ? `Bearer ${credentials.token}` : undefined,
-							'Content-Type': 'application/json',
-						},
-						body: {
-							task: instructions,
-							ai_provider: aiProvider !== 'default' ? aiProvider : undefined,
-						},
-						json: true,
-					});
-
-					returnData.push({
-						json: response,
-					});
-				} else if (operation === 'getTaskStatus') {
-					const taskId = this.getNodeParameter('taskId', i) as string;
-					
-					const response = await this.helpers.request({
-						method: 'GET',
-						url: `${baseUrl}/task/${taskId}/status`,
-						headers: {
-							'Authorization': connectionType === 'cloud' 
-								? `Bearer ${credentials.apiKey}` 
-								: credentials.token ? `Bearer ${credentials.token}` : undefined,
-						},
-						json: true,
-					});
-					
-					returnData.push({
-						json: response,
-					});
-				} else if (operation === 'stopTask') {
-					const taskId = this.getNodeParameter('taskId', i) as string;
-					
-					const response = await this.helpers.request({
-						method: 'PUT',
-						url: `${baseUrl}/stop-task/${taskId}`,
-						headers: {
-							'Authorization': connectionType === 'cloud' 
-								? `Bearer ${credentials.apiKey}` 
-								: credentials.token ? `Bearer ${credentials.token}` : undefined,
-						},
-						json: true,
-					});
-					
-					returnData.push({
-						json: response,
-					});
-				} else if (operation === 'getTaskMedia') {
-					const taskId = this.getNodeParameter('taskId', i) as string;
-					const mediaType = this.getNodeParameter('mediaType', i) as string;
-					
-					const response = await this.helpers.request({
-						method: 'GET',
-						url: `${baseUrl}/task/${taskId}/media?type=${mediaType}`,
-						headers: {
-							'Authorization': connectionType === 'cloud' 
-								? `Bearer ${credentials.apiKey}` 
-								: credentials.token ? `Bearer ${credentials.token}` : undefined,
-						},
-						json: true,
-					});
-					
-					returnData.push({
-						json: response,
-					});
+		try {
+			if (connectionType === 'cloud') {
+				credentials = await this.getCredentials('browserUseCloudApi');
+				
+				if (!credentials.apiKey) {
+					throw new NodeOperationError(this.getNode(), 'API Key is required for Browser Use Cloud API');
 				}
-			} catch (error) {
-				if (this.continueOnFail()) {
-					returnData.push({ json: { error: error.message } });
-					continue;
+				
+				baseUrl = 'https://api.browser-use.com/api/v1';
+				
+				// Validate credentials by making a test ping request
+				try {
+					await this.helpers.request({
+						method: 'GET',
+						url: `${baseUrl}/ping`,
+						headers: {
+							'Authorization': `Bearer ${credentials.apiKey}`,
+						},
+						json: true,
+					});
+				} catch (error) {
+					throw new NodeApiError(this.getNode(), error, { message: `Failed to connect to Browser Use Cloud API: ${error.message}` });
 				}
-				throw error;
+			} else {
+				credentials = await this.getCredentials('browserUseLocalBridgeApi');
+				
+				if (!credentials.url) {
+					throw new NodeOperationError(this.getNode(), 'URL is required for Browser Use Local Bridge');
+				}
+				
+				baseUrl = credentials.url as string;
+				if (!baseUrl.endsWith('/api/v1')) {
+					baseUrl = `${baseUrl}/api/v1`.replace(/\/+/g, '/');
+				}
+				
+				// Validate credentials by making a test ping request
+				try {
+					await this.helpers.request({
+						method: 'GET',
+						url: `${baseUrl}/ping`,
+						headers: {
+							'Authorization': credentials.token ? `Bearer ${credentials.token}` : undefined,
+						},
+						json: true,
+					});
+				} catch (error) {
+					throw new NodeApiError(this.getNode(), error, { message: `Failed to connect to Browser Use Local Bridge at ${baseUrl}: ${error.message}` });
+				}
 			}
+			
+			for (let i = 0; i < items.length; i++) {
+				try {
+					if (operation === 'runTask') {
+						const instructions = this.getNodeParameter('instructions', i) as string;
+						const aiProvider = this.getNodeParameter('aiProvider', i) as string;
+
+						// Make API call to Browser Use (Cloud or Local)
+						const response = await this.helpers.request({
+							method: 'POST',
+							url: `${baseUrl}/run-task`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+								'Content-Type': 'application/json',
+							},
+							body: {
+								task: instructions,
+								ai_provider: aiProvider !== 'default' ? aiProvider : undefined,
+							},
+							json: true,
+						});
+
+						returnData.push({
+							json: response,
+						});
+					} else if (operation === 'getTaskStatus') {
+						const taskId = this.getNodeParameter('taskId', i) as string;
+						
+						const response = await this.helpers.request({
+							method: 'GET',
+							url: `${baseUrl}/task/${taskId}/status`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+							},
+							json: true,
+						});
+						
+						returnData.push({
+							json: response,
+						});
+					} else if (operation === 'stopTask') {
+						const taskId = this.getNodeParameter('taskId', i) as string;
+						
+						const response = await this.helpers.request({
+							method: 'PUT',
+							url: `${baseUrl}/stop-task/${taskId}`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+							},
+							json: true,
+						});
+						
+						returnData.push({
+							json: response,
+						});
+					} else if (operation === 'getTaskMedia') {
+						const taskId = this.getNodeParameter('taskId', i) as string;
+						const mediaType = this.getNodeParameter('mediaType', i) as string;
+						
+						const response = await this.helpers.request({
+							method: 'GET',
+							url: `${baseUrl}/task/${taskId}/media?type=${mediaType}`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+							},
+							json: true,
+						});
+						
+						returnData.push({
+							json: response,
+						});
+					}
+				} catch (error) {
+					if (this.continueOnFail()) {
+						returnData.push({ json: { error: error.message } });
+						continue;
+					}
+					throw error;
+				}
+			}
+		} catch (error) {
+			if (this.continueOnFail()) {
+				return [[{ json: { error: error.message } }]];
+			}
+			throw error;
 		}
 
 		return [returnData];

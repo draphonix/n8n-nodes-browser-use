@@ -45,6 +45,9 @@ export class BrowserUseLocalBridgeApi implements ICredentialType {
 			baseURL: '={{$credentials.url}}',
 			url: '/api/v1/ping',
 			method: 'GET',
+			headers: {
+				Authorization: '={{$credentials.token ? `Bearer ${$credentials.token}` : undefined}}',
+			},
 		},
 	};
 } 

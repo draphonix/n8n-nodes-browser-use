@@ -37,6 +37,9 @@ export class BrowserUseCloudApi implements ICredentialType {
 			baseURL: 'https://api.browser-use.com/api/v1',
 			url: '/ping',
 			method: 'GET',
+			headers: {
+				Authorization: '={{`Bearer ${$credentials.apiKey}`}}',
+			},
 		},
 	};
 } 

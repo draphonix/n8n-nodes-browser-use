@@ -108,6 +108,23 @@ Retrieve media (screenshots, video, PDF) from a task.
 
 **Returns:** URL or binary data of the requested media.
 
+## Credential Validation
+
+The node implements automatic validation for credentials:
+
+### Cloud API Credentials
+- The node validates your API key by sending a ping request to the Browser Use Cloud API
+- If the API key is invalid or the service is unavailable, you'll receive a clear error message
+
+### Local Bridge Credentials
+- The node verifies the connection to your local bridge service with a ping request
+- It validates both the URL and authentication token (if provided)
+- Errors during validation provide specific information about what went wrong
+
+This validation happens automatically when:
+1. You save your credentials in the n8n credentials manager
+2. You run a workflow using the Browser Use node
+
 ## Example Workflows
 
 ### Web Scraping
