@@ -81,37 +81,35 @@ export class BrowserUse implements INodeType {
 						value: 'runTask',
 					},
 					{
+						name: 'Get Task',
+						value: 'getTask',
+					},
+					{
 						name: 'Get Task Status',
 						value: 'getTaskStatus',
+					},
+					{
+						name: 'Get Task Media',
+						value: 'getTaskMedia',
+					},
+					{
+						name: 'Pause Task',
+						value: 'pauseTask',
+					},
+					{
+						name: 'Resume Task',
+						value: 'resumeTask',
 					},
 					{
 						name: 'Stop Task',
 						value: 'stopTask',
 					},
 					{
-						name: 'Get Task Media',
-						value: 'getTaskMedia',
+						name: 'List Tasks',
+						value: 'listTasks',
 					},
 				],
 				default: 'runTask',
-			},
-			
-			// AI Provider selection (for runTask)
-			{
-				displayName: 'AI Provider',
-				name: 'aiProvider',
-				type: 'options',
-				options: [
-					{ name: 'OpenAI', value: 'openai' },
-					{ name: 'Anthropic', value: 'anthropic' },
-					{ name: 'Default', value: 'default' },
-				],
-				default: 'default',
-				displayOptions: {
-					show: {
-						operation: ['runTask'],
-					},
-				},
 			},
 			
 			// Task instruction (for runTask)
@@ -133,6 +131,20 @@ export class BrowserUse implements INodeType {
 				required: true,
 			},
 			
+			// Save Browser Data (for runTask)
+			{
+				displayName: 'Save Browser Data',
+				name: 'saveBrowserData',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						operation: ['runTask'],
+					},
+				},
+				description: 'Whether to save browser cookies and other data. Cookies are safely encrypted before storing in the database.',
+			},
+			
 			// Task ID (for getTaskStatus, stopTask, and getTaskMedia)
 			{
 				displayName: 'Task ID',
@@ -141,10 +153,10 @@ export class BrowserUse implements INodeType {
 				default: '',
 				displayOptions: {
 					show: {
-						operation: ['getTaskStatus', 'stopTask', 'getTaskMedia'],
+						operation: ['getTaskStatus', 'stopTask', 'getTaskMedia', 'getTask', 'pauseTask', 'resumeTask'],
 					},
 				},
-				description: 'ID of the task to check, stop, or get media from',
+				description: 'ID of the task to interact with',
 				required: true,
 			},
 			
@@ -166,6 +178,24 @@ export class BrowserUse implements INodeType {
 				},
 				description: 'Type of media to retrieve from the task',
 			},
+			
+			// List Tasks Limit
+			{
+				displayName: 'Limit',
+				name: 'limit',
+				type: 'number',
+				typeOptions: {
+					minValue: 1,
+					maxValue: 100,
+				},
+				default: 20,
+				displayOptions: {
+					show: {
+						operation: ['listTasks'],
+					},
+				},
+				description: 'Maximum number of tasks to return',
+			}
 		],
 	};
 
@@ -233,7 +263,7 @@ export class BrowserUse implements INodeType {
 				try {
 					if (operation === 'runTask') {
 						const instructions = this.getNodeParameter('instructions', i) as string;
-						const aiProvider = this.getNodeParameter('aiProvider', i) as string;
+						const saveBrowserData = this.getNodeParameter('saveBrowserData', i) as boolean;
 
 						// Make API call to Browser Use (Cloud or Local)
 						const response = await this.helpers.request({
@@ -247,7 +277,7 @@ export class BrowserUse implements INodeType {
 							},
 							body: {
 								task: instructions,
-								ai_provider: aiProvider !== 'default' ? aiProvider : undefined,
+								save_browser_data: saveBrowserData,
 							},
 							json: true,
 						});
@@ -296,6 +326,77 @@ export class BrowserUse implements INodeType {
 						const response = await this.helpers.request({
 							method: 'GET',
 							url: `${baseUrl}/task/${taskId}/media?type=${mediaType}`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+							},
+							json: true,
+						});
+						
+						returnData.push({
+							json: response,
+						});
+					} else if (operation === 'getTask') {
+						const taskId = this.getNodeParameter('taskId', i) as string;
+						
+						const response = await this.helpers.request({
+							method: 'GET',
+							url: `${baseUrl}/task/${taskId}`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+							},
+							json: true,
+						});
+						
+						returnData.push({
+							json: response,
+						});
+					} else if (operation === 'pauseTask') {
+						const taskId = this.getNodeParameter('taskId', i) as string;
+						
+						const response = await this.helpers.request({
+							method: 'PUT',
+							url: `${baseUrl}/pause-task/${taskId}`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+							},
+							json: true,
+						});
+						
+						returnData.push({
+							json: response,
+						});
+					} else if (operation === 'resumeTask') {
+						const taskId = this.getNodeParameter('taskId', i) as string;
+						
+						const response = await this.helpers.request({
+							method: 'PUT',
+							url: `${baseUrl}/resume-task/${taskId}`,
+							headers: {
+								'Authorization': connectionType === 'cloud' 
+									? `Bearer ${credentials.apiKey}` 
+									: credentials.token ? `Bearer ${credentials.token}` : undefined,
+							},
+							json: true,
+						});
+						
+						returnData.push({
+							json: response,
+						});
+					} else if (operation === 'listTasks') {
+						const limit = this.getNodeParameter('limit', i) as number;
+						
+						// Build query parameters
+						let queryString = `limit=${limit}`;
+						
+						const response = await this.helpers.request({
+							method: 'GET',
+							url: `${baseUrl}/tasks?${queryString}`,
 							headers: {
 								'Authorization': connectionType === 'cloud' 
 									? `Bearer ${credentials.apiKey}` 
