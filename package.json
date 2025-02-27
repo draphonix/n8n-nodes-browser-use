@@ -1,19 +1,23 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "n8n-nodes-browser-use",
   "version": "0.1.0",
-  "description": "",
+  "description": "n8n node to control browser-use AI-powered browser automation",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "browser-use",
+    "browser-automation",
+    "web-scraping",
+    "ai-automation"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/yourusername/n8n-nodes-browser-use",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Your Name",
+    "email": "your-email@example.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/yourusername/n8n-nodes-browser-use.git"
   },
   "engines": {
     "node": ">=18.10",
@@ -36,12 +40,11 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js"
+      "dist/credentials/BrowserUseCloudApi.credentials.js",
+      "dist/credentials/BrowserUseLocalBridge.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/BrowserUse/BrowserUse.node.js"
     ]
   },
   "devDependencies": {
@@ -49,6 +52,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.1",
     "gulp": "^4.0.2",
+    "n8n-core": "^1.14.1",
     "prettier": "^3.3.2",
     "typescript": "^5.5.3"
   },

@@ -1,46 +1,151 @@
 ![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
 
-# n8n-nodes-starter
+# n8n-nodes-browser-use
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](n8n.io). It includes the node linter and other dependencies.
+This is an n8n community node that integrates with [Browser Use](https://browser-use.com), an AI-powered browser automation tool. This node allows you to create and manage browser automation tasks using natural language instructions.
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+## Features
 
-## Prerequisites
+- **Cloud API Integration**: Connect to the Browser Use Cloud API for the simplest setup.
+- **Local Bridge Option**: Connect to a locally running Browser Use instance (requires additional setup).
+- **Multiple AI Providers**: Choose between different AI models for browser automation.
+- **Full Task Management**: Create, monitor, stop, and retrieve media from browser automation tasks.
 
-You need the following installed on your development machine:
+## Installation
 
-* [git](https://git-scm.com/downloads)
-* Node.js and pnpm. Minimum version Node 18. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  pnpm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
+Follow these steps to install this node:
 
-## Using this starter
+### In n8n Desktop or Cloud:
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+1. Go to **Settings > Community Nodes**
+2. Click on **Install**
+3. Enter `n8n-nodes-browser-use` in the **Name** field
+4. Click **Install**
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `pnpm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `pnpm lint` to check for errors or `pnpm lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+### In a self-hosted n8n instance:
 
-## More information
+```bash
+npm install n8n-nodes-browser-use
+```
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+### For local development:
+
+1. Clone this repository
+2. Install dependencies: `npm install` 
+3. Build the code: `npm run build`
+4. Link to your n8n installation: `npm link`
+5. In your n8n installation directory: `npm link n8n-nodes-browser-use`
+
+## Usage
+
+### Cloud API Connection
+
+1. Create credentials for the Browser Use Cloud API:
+   - Get your API key from [Browser Use Cloud](https://cloud.browser-use.com/billing)
+   - Create a new credential of type "Browser Use Cloud API"
+   - Enter your API key
+
+2. Add the Browser Use node to your workflow
+3. Select "Cloud API" as the connection type
+4. Choose your operation (Run Task, Get Task Status, etc.)
+5. Configure the operation parameters (instructions, task ID, etc.)
+
+### Local Bridge Connection
+
+Before using the Local Bridge connection, you need to set up the Python bridge service:
+
+1. Clone the repository for the bridge service (coming soon)
+2. Install the required dependencies
+3. Run the bridge service
+
+Then, in n8n:
+
+1. Create credentials for the Browser Use Local Bridge:
+   - Enter the URL of your local bridge service (e.g., `http://localhost:8000`)
+   - If authentication is enabled, enter your authentication token
+
+2. Add the Browser Use node to your workflow
+3. Select "Local Bridge" as the connection type
+4. Follow the same steps as for the Cloud API connection
+
+## Operations
+
+### Run Task
+
+Execute a new browser automation task with natural language instructions.
+
+**Parameters:**
+- **Instructions**: Natural language description of what you want the browser to do.
+- **AI Provider**: Select the AI model to use for automation (OpenAI, Anthropic, or Default).
+
+**Returns:** Task ID, status, and a live preview URL.
+
+### Get Task Status
+
+Check the status of a running task.
+
+**Parameters:**
+- **Task ID**: The ID of the task to check.
+
+**Returns:** Current status, completion percentage, and any error messages.
+
+### Stop Task
+
+Stop a running task.
+
+**Parameters:**
+- **Task ID**: The ID of the task to stop.
+
+**Returns:** Confirmation of task termination.
+
+### Get Task Media
+
+Retrieve media (screenshots, video, PDF) from a task.
+
+**Parameters:**
+- **Task ID**: The ID of the task.
+- **Media Type**: Type of media to retrieve (Screenshot, Video, or PDF).
+
+**Returns:** URL or binary data of the requested media.
+
+## Example Workflows
+
+### Web Scraping
+
+1. Trigger (Manual, Schedule, etc.)
+2. Browser Use node:
+   - Operation: Run Task
+   - Instructions: "Go to example.com, click on the 'Products' link, and extract all product names and prices"
+
+3. Wait node (optional)
+4. Browser Use node:
+   - Operation: Get Task Status
+   - Task ID: Output from Step 2
+
+5. If node: Check if task is complete
+6. Process the scraped data
+
+### Form Automation
+
+1. Trigger (HTTP, Webhook, etc.)
+2. Browser Use node:
+   - Operation: Run Task
+   - Instructions: "Go to example.com/contact, fill out the form with Name: {{$json.name}}, Email: {{$json.email}}, Message: {{$json.message}}, and submit the form"
+
+3. Wait node
+4. Browser Use node:
+   - Operation: Get Task Media
+   - Task ID: Output from Step 2
+   - Media Type: Screenshot
+
+5. Send Email node with the screenshot attached
+
+## Resources
+
+- [Browser Use Documentation](https://docs.browser-use.com)
+- [Browser Use Cloud API Documentation](https://docs.browser-use.com/cloud/quickstart)
+- [n8n Documentation](https://docs.n8n.io)
 
 ## License
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+[MIT](LICENSE.md)
