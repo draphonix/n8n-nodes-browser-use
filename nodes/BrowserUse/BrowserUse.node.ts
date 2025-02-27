@@ -77,20 +77,20 @@ export class BrowserUse implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Run Task',
-						value: 'runTask',
-					},
-					{
 						name: 'Get Task',
 						value: 'getTask',
+					},
+					{
+						name: 'Get Task Media',
+						value: 'getTaskMedia',
 					},
 					{
 						name: 'Get Task Status',
 						value: 'getTaskStatus',
 					},
 					{
-						name: 'Get Task Media',
-						value: 'getTaskMedia',
+						name: 'List Tasks',
+						value: 'listTasks',
 					},
 					{
 						name: 'Pause Task',
@@ -101,12 +101,12 @@ export class BrowserUse implements INodeType {
 						value: 'resumeTask',
 					},
 					{
-						name: 'Stop Task',
-						value: 'stopTask',
+						name: 'Run Task',
+						value: 'runTask',
 					},
 					{
-						name: 'List Tasks',
-						value: 'listTasks',
+						name: 'Stop Task',
+						value: 'stopTask',
 					},
 				],
 				default: 'runTask',
@@ -186,15 +186,14 @@ export class BrowserUse implements INodeType {
 				type: 'number',
 				typeOptions: {
 					minValue: 1,
-					maxValue: 100,
 				},
-				default: 20,
+				default: 50,
 				displayOptions: {
 					show: {
 						operation: ['listTasks'],
 					},
 				},
-				description: 'Maximum number of tasks to return',
+				description: 'Max number of results to return',
 			}
 		],
 	};

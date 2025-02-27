@@ -112,7 +112,7 @@ Retrieve media (screenshots, video, PDF) from a task.
 Retrieve a list of tasks with optional filtering.
 
 **Parameters:**
-- **Limit**: Maximum number of tasks to return (1-100, default 20).
+- **Limit**: Max number of results to return (1-50, default 50).
 - **Status Filter**: Filter tasks by their status (optional).
 
 **Returns:** Array of task records matching the criteria.
