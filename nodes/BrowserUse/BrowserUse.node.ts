@@ -9,6 +9,8 @@ export class BrowserUse implements INodeType {
 		group: ['transform'],
 		version: 1,
 		description: 'Automate browser interactions using AI',
+		// @ts-ignore - Adding usableAsTool property for n8n versions that support Nodes-as-Tools
+		usableAsTool: true,
 		defaults: {
 			name: 'Browser Use',
 		},
@@ -79,34 +81,50 @@ export class BrowserUse implements INodeType {
 					{
 						name: 'Get Task',
 						value: 'getTask',
+						description: 'Retrieve detailed information about a specific browser automation task',
+						action: 'Retrieve detailed information about a specific browser automation task',
 					},
 					{
 						name: 'Get Task Media',
 						value: 'getTaskMedia',
+						description: 'Retrieve media (screenshot, video, or PDF) captured during a browser task',
+						action: 'Retrieve media screenshot video or pdf captured during a browser task',
 					},
 					{
 						name: 'Get Task Status',
 						value: 'getTaskStatus',
+						description: 'Check the current status of a running or completed browser task',
+						action: 'Check the current status of a running or completed browser task',
 					},
 					{
 						name: 'List Tasks',
 						value: 'listTasks',
+						description: 'List all browser automation tasks with pagination support',
+						action: 'List all browser automation tasks with pagination support',
 					},
 					{
 						name: 'Pause Task',
 						value: 'pauseTask',
+						description: 'Temporarily pause a running browser automation task',
+						action: 'Temporarily pause a running browser automation task',
 					},
 					{
 						name: 'Resume Task',
 						value: 'resumeTask',
+						description: 'Resume a previously paused browser automation task',
+						action: 'Resume a previously paused browser automation task',
 					},
 					{
 						name: 'Run Task',
 						value: 'runTask',
+						description: 'Execute a new browser automation task with natural language instructions',
+						action: 'Execute a new browser automation task with natural language instructions',
 					},
 					{
 						name: 'Stop Task',
 						value: 'stopTask',
+						description: 'Completely stop and terminate a browser automation task',
+						action: 'Completely stop and terminate a browser automation task',
 					},
 				],
 				default: 'runTask',
@@ -127,8 +145,9 @@ export class BrowserUse implements INodeType {
 						operation: ['runTask'],
 					},
 				},
-				description: 'Natural language instructions for the browser automation',
+				description: 'Natural language instructions for the browser to follow. For example: "Go to amazon.com, search for wireless headphones, and extract the prices and ratings of the first 5 results". You can use $fromAI() to dynamically populate this field from AI Agent input.',
 				required: true,
+				hint: 'The browser will follow these instructions autonomously, performing actions like navigating, clicking, typing, and data extraction.',
 			},
 			
 			// Save Browser Data (for runTask)
@@ -142,7 +161,7 @@ export class BrowserUse implements INodeType {
 						operation: ['runTask'],
 					},
 				},
-				description: 'Whether to save browser cookies and other data. Cookies are safely encrypted before storing in the database.',
+				description: 'Whether to save browser cookies and session data for future tasks. Useful for maintaining login sessions across multiple tasks.',
 			},
 			
 			// Task ID (for getTaskStatus, stopTask, and getTaskMedia)
@@ -156,7 +175,7 @@ export class BrowserUse implements INodeType {
 						operation: ['getTaskStatus', 'stopTask', 'getTaskMedia', 'getTask', 'pauseTask', 'resumeTask'],
 					},
 				},
-				description: 'ID of the task to interact with',
+				description: 'The unique identifier of the browser task to interact with',
 				required: true,
 			},
 			
@@ -166,9 +185,9 @@ export class BrowserUse implements INodeType {
 				name: 'mediaType',
 				type: 'options',
 				options: [
-					{ name: 'Screenshot', value: 'screenshot' },
-					{ name: 'Video', value: 'video' },
-					{ name: 'PDF', value: 'pdf' },
+					{ name: 'Screenshot', value: 'screenshot', description: 'A static image of the current browser view' },
+					{ name: 'Video', value: 'video', description: 'A video recording of the browser automation session' },
+					{ name: 'PDF', value: 'pdf', description: 'A PDF export of the current page' },
 				],
 				default: 'screenshot',
 				displayOptions: {
@@ -176,7 +195,7 @@ export class BrowserUse implements INodeType {
 						operation: ['getTaskMedia'],
 					},
 				},
-				description: 'Type of media to retrieve from the task',
+				description: 'The type of media to retrieve from the browser task',
 			},
 			
 			// List Tasks Limit

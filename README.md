@@ -13,6 +13,7 @@ Browser Use is an AI-powered browser automation tool that allows you to create a
 [Credentials](#credentials)  
 [Compatibility](#compatibility)  
 [Usage](#usage)  
+[Nodes-as-Tools](#nodes-as-tools)  
 [Resources](#resources)  
 
 ## Installation
@@ -146,6 +147,8 @@ To use the Local Bridge connection:
 
 This node has been tested with n8n version 1.80.4.
 
+The Nodes-as-Tools feature requires n8n version 1.62.1 or newer.
+
 ## Usage
 
 ### Cloud API Connection
@@ -174,11 +177,60 @@ Then in n8n:
 3. Choose your credentials or create new ones
 4. Configure as you would with the Cloud API connection
 
+## Nodes-as-Tools
+
+Starting with version 0.1.4, Browser Use node supports the n8n Nodes-as-Tools feature, allowing it to be used directly by AI agents in your workflows.
+
+### Requirements
+
+- n8n version 1.62.1 or newer
+- AI Agent node in your workflow
+
+### Using Browser Use as an AI Tool
+
+1. Add the Browser Use node to your workflow
+2. Configure the node with your credentials
+3. Connect it to an AI Agent node
+4. The AI Agent can now use Browser Use operations based on natural language instructions
+
+### Configuration for Community Nodes
+
+Since Browser Use is a community node, you'll need to enable community packages as tools:
+
+1. Set the environment variable `N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true` when running n8n
+2. Restart your n8n instance
+
+Example for a Docker-based installation:
+```bash
+docker run -e N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true -p 5678:5678 n8nio/n8n
+```
+
+### Example Prompts for AI Agents
+
+Here are some examples of how to instruct an AI agent to use Browser Use:
+
+- "Go to amazon.com and extract the prices and ratings of the top 5 bestsellers in electronics"
+- "Navigate to my company's website, log in with my credentials, and download the latest financial report"
+- "Search for recent news about artificial intelligence and summarize the top 3 articles"
+- "Fill out a contact form on example.com with my information"
+
+### Tool Operations Available to AI
+
+The AI agent can use all of the Browser Use operations:
+
+- **Run Task**: Execute browser automation with natural language instructions
+- **Get Task Status**: Check if a task is completed or still running
+- **Get Task**: Retrieve detailed information about a task
+- **Get Task Media**: Obtain screenshots, videos, or PDFs from a task
+- **Pause/Resume/Stop Task**: Control running tasks
+- **List Tasks**: View all browser automation tasks
+
 ## Resources
 
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 * [Browser Use Documentation](https://docs.browser-use.com)
 * [Browser Use Cloud API Documentation](https://docs.browser-use.com/cloud/quickstart)
+* [n8n Nodes-as-Tools Documentation](https://docs.n8n.io/ai/nodes-as-tools/)
 
 ## License
 
