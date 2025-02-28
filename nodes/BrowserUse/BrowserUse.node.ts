@@ -150,6 +150,29 @@ export class BrowserUse implements INodeType {
 				hint: 'The browser will follow these instructions autonomously, performing actions like navigating, clicking, typing, and data extraction.',
 			},
 			
+			// AI Provider (for Local Bridge runTask)
+			{
+				displayName: 'AI Provider',
+				name: 'aiProvider',
+				type: 'options',
+				options: [
+					{ name: 'Anthropic', value: 'anthropic', description: 'Use Anthropic models like Claude' },
+					{ name: 'Azure OpenAI', value: 'azure', description: 'Use Azure-hosted OpenAI models' },
+					{ name: 'Google', value: 'google', description: 'Use Google Gemini models' },
+					{ name: 'Mistral', value: 'mistral', description: 'Use Mistral AI models' },
+					{ name: 'Ollama', value: 'ollama', description: 'Use locally-hosted Ollama models' },
+					{ name: 'OpenAI', value: 'openai', description: 'Use OpenAI models like GPT-4o' },
+				],
+				default: 'openai',
+				description: 'The AI provider to use for processing browser instructions',
+				displayOptions: {
+					show: {
+						operation: ['runTask'],
+						connectionType: ['local'],
+					},
+				},
+			},
+			
 			// Save Browser Data (for runTask)
 			{
 				displayName: 'Save Browser Data',
@@ -159,6 +182,7 @@ export class BrowserUse implements INodeType {
 				displayOptions: {
 					show: {
 						operation: ['runTask'],
+						connectionType: ['cloud'],
 					},
 				},
 				description: 'Whether to save browser cookies and session data for future tasks. Useful for maintaining login sessions across multiple tasks.',
@@ -281,7 +305,30 @@ export class BrowserUse implements INodeType {
 				try {
 					if (operation === 'runTask') {
 						const instructions = this.getNodeParameter('instructions', i) as string;
-						const saveBrowserData = this.getNodeParameter('saveBrowserData', i) as boolean;
+						
+						// Handle save browser data based on connection type
+						let saveBrowserData = false;
+						if (connectionType === 'cloud') {
+							saveBrowserData = this.getNodeParameter('saveBrowserData', i) as boolean;
+						}
+						
+						// Create request body
+						const body: {
+							task: string;
+							save_browser_data?: boolean;
+							ai_provider?: string;
+						} = {
+							task: instructions,
+						};
+						
+						// Add save_browser_data only for cloud API
+						if (connectionType === 'cloud') {
+							body.save_browser_data = saveBrowserData;
+						} else {
+							// For local bridge, add ai_provider
+							const aiProvider = this.getNodeParameter('aiProvider', i) as string;
+							body.ai_provider = aiProvider;
+						}
 
 						// Make API call to Browser Use (Cloud or Local)
 						const response = await this.helpers.request({
@@ -293,10 +340,7 @@ export class BrowserUse implements INodeType {
 									: credentials.token ? `Bearer ${credentials.token}` : undefined,
 								'Content-Type': 'application/json',
 							},
-							body: {
-								task: instructions,
-								save_browser_data: saveBrowserData,
-							},
+							body,
 							json: true,
 						});
 
