@@ -2,7 +2,7 @@
 
 All notable changes to the Browser Use n8n integration will be documented in this file.
 
-## [0.1.4] - 2023-10-25
+## [0.1.4] - 2025-02-28
 
 ### Added
 - Support for n8n Nodes-as-Tools feature
@@ -17,12 +17,13 @@ All notable changes to the Browser Use n8n integration will be documented in thi
 - Updated README with Nodes-as-Tools usage instructions
 - Enhanced parameter descriptions to be more AI-friendly
 - Improved operation descriptions with more context for AI decision-making
+- Fix icon issue
 
 ### Requirements
 - n8n version 1.62.1 or newer for Nodes-as-Tools functionality
 - Environment variable `N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true` for community nodes
 
-## [0.1.3] - 2023-10-10
+## [0.1.3] - 2025-02-27
 
 ### Added
 - Initial release of the Browser Use node for n8n

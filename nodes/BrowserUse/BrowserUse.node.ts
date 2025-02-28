@@ -5,7 +5,7 @@ export class BrowserUse implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Browser Use',
 		name: 'browserUse',
-		icon: 'file:browseruse.svg',
+		icon: 'file:icons/browseruse.svg',
 		group: ['transform'],
 		version: 1,
 		description: 'Automate browser interactions using AI',
