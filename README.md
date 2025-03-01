@@ -160,15 +160,25 @@ The Nodes-as-Tools feature requires n8n version 1.62.1 or newer.
 5. Configure the operation parameters
 6. Run your workflow
 
-### Local Bridge Connection (🚧 Work In Progress)
+### Local Bridge Connection
 
 The Local Bridge option allows you to connect to a locally running Browser Use instance, which can be useful for development, testing, or when you need to keep your automation entirely on-premise.
 
-⚠️ **Setup Requirements (Coming Soon):**
+**Setup Requirements:**
 
-1. Clone the repository for the bridge service (under development)
-2. Install the required dependencies
-3. Run the bridge service
+1. Clone the repository for the bridge service:
+   ```bash
+   git clone https://github.com/draphonix/browser-n8n-local.git
+   cd browser-n8n-local
+   ```
+2. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Configure and run the bridge service:
+   ```bash
+   python app.py
+   ```
 
 Then in n8n:
 

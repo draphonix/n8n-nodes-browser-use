@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-browser-use",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "n8n node to control browser-use AI-powered browser automation with Nodes-as-Tools support",
   "keywords": [
     "n8n-community-node-package",

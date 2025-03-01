@@ -188,6 +188,36 @@ export class BrowserUse implements INodeType {
 				description: 'Whether to save browser cookies and session data for future tasks. Useful for maintaining login sessions across multiple tasks.',
 			},
 			
+			// Headful mode (for runTask)
+			{
+				displayName: 'Headful Mode',
+				name: 'headful',
+				type: 'boolean',
+				default: false,
+				displayOptions: {
+					show: {
+						operation: ['runTask'],
+						connectionType: ['local'],
+					},
+				},
+				description: 'Whether to run the browser in visible (headful) mode. When enabled, you will see the browser window as it performs actions.',
+			},
+			
+			// Use Custom Chrome (for runTask)
+			{
+				displayName: 'Use Custom Chrome',
+				name: 'useCustomChrome',
+				type: 'boolean',
+				default: true,
+				displayOptions: {
+					show: {
+						operation: ['runTask'],
+						connectionType: ['local'],
+					},
+				},
+				description: 'Whether to use a custom Chrome installation specified in environment variables. Disable if you want to use the default system Chrome.',
+			},
+			
 			// Task ID (for getTaskStatus, stopTask, and getTaskMedia)
 			{
 				displayName: 'Task ID',
@@ -317,6 +347,8 @@ export class BrowserUse implements INodeType {
 							task: string;
 							save_browser_data?: boolean;
 							ai_provider?: string;
+							headful?: boolean;
+							use_custom_chrome?: boolean;
 						} = {
 							task: instructions,
 						};
@@ -325,9 +357,13 @@ export class BrowserUse implements INodeType {
 						if (connectionType === 'cloud') {
 							body.save_browser_data = saveBrowserData;
 						} else {
-							// For local bridge, add ai_provider
+							// For local bridge, add ai_provider and the new parameters
 							const aiProvider = this.getNodeParameter('aiProvider', i) as string;
 							body.ai_provider = aiProvider;
+							
+							// Add the new headful and use_custom_chrome parameters
+							body.headful = this.getNodeParameter('headful', i) as boolean;
+							body.use_custom_chrome = this.getNodeParameter('useCustomChrome', i) as boolean;
 						}
 
 						// Make API call to Browser Use (Cloud or Local)
